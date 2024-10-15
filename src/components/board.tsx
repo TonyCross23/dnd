@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { CiCirclePlus } from "react-icons/ci";
-import { Column, Id } from "../type/types";
+import { Column, Id, Task } from "../type/types";
 import ColumnContainer from "./columnContainer";
 import {DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors} from '@dnd-kit/core';
 import {arrayMove, SortableContext} from '@dnd-kit/sortable';
@@ -11,6 +11,7 @@ const Board: React.FC = () => {
   const [columns, setColumn ] = useState<Column[]>([])
   const columnId = useMemo(() =>columns.map((column) => column.id),[columns]);
   const [activeColumn, setActiveColumn] = useState<Column | null>(null)
+  const [tasks, setTasks] = useState<Task[]>([])
   
 
   const createNewColumn = () => {
@@ -68,6 +69,23 @@ const Board: React.FC = () => {
       })
   }
 
+  const updateColumn = (id: Id, title: string) => {
+    const newCloumn = columns.map((column) => {
+      if (column.id !== id) return column;
+      return {...column,title};
+    })
+    setColumn(newCloumn)
+  }
+
+  const createTask = (columnId: Id) => {
+    const newTask: Task = {
+      id: generateId(),
+      columnId,
+      content: `Task ${tasks.length +1 }`,
+    }
+    setTasks([...tasks, newTask])
+  }
+
   return (
     <div className="mx-auto flex min-h-screen w-full items-center overflow-x-auto overflow-y-hidden px-[40px]">
    <DndContext sensors={sensor} onDragStart={onDragStart} onDragEnd={onDrageEnd}>
@@ -75,7 +93,12 @@ const Board: React.FC = () => {
             <div className="flex flex-wrap gap-4 my-10">
               <SortableContext items={columnId}>
               {columns.map((column) =>(
-                <ColumnContainer key={column.id} column={column} deleteColumn={delectColumn}/>
+                <ColumnContainer key={column.id} column={column} 
+                  deleteColumn={delectColumn} 
+                  updateColumn={updateColumn}
+                  createTask={createTask}
+                  tasks= {tasks.filter((task) => task.columnId === column.id)}
+                />
               ))}
               </SortableContext>
             </div>
@@ -89,6 +112,9 @@ const Board: React.FC = () => {
                   <ColumnContainer
                     column={activeColumn}
                     deleteColumn={delectColumn}
+                    updateColumn={updateColumn}
+                    createTask={createTask}
+
                   />
                 )
               }
