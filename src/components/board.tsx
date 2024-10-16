@@ -86,6 +86,19 @@ const Board: React.FC = () => {
     setTasks([...tasks, newTask])
   }
 
+  const deleteTask = (id: Id) => {
+    const newTask = tasks.filter((task) => task.id !== id)
+    setTasks(newTask)
+  }
+
+  const updateTask = (id: Id, content: string) => {
+    const newTask = tasks.map((task) => {
+      if (task.id !== id) return task
+      return {...task, content}
+    })
+    setTasks(newTask)
+  }
+
   return (
     <div className="mx-auto flex min-h-screen w-full items-center overflow-x-auto overflow-y-hidden px-[40px]">
    <DndContext sensors={sensor} onDragStart={onDragStart} onDragEnd={onDrageEnd}>
@@ -98,6 +111,8 @@ const Board: React.FC = () => {
                   updateColumn={updateColumn}
                   createTask={createTask}
                   tasks= {tasks.filter((task) => task.columnId === column.id)}
+                  deleteTask={deleteTask}
+                  updateTask={updateTask}
                 />
               ))}
               </SortableContext>
@@ -114,7 +129,9 @@ const Board: React.FC = () => {
                     deleteColumn={delectColumn}
                     updateColumn={updateColumn}
                     createTask={createTask}
-
+                    tasks= {tasks.filter((task) => task.columnId === activeColumn.id)}
+                    deleteTask={deleteTask}
+                    updateTask={updateTask}
                   />
                 )
               }
