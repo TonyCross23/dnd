@@ -1,8 +1,8 @@
-import { useSortable } from "@dnd-kit/sortable";
+import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { Column, Id, Task } from "../type/types";
 import { FaRegTrashCan } from "react-icons/fa6";
 import {CSS} from '@dnd-kit/utilities';
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { CiCirclePlus } from "react-icons/ci";
 import TaskCard from "./taskCard";
 
@@ -34,6 +34,10 @@ const ColumnContainer = (props: Props) => {
     transform: CSS.Transform.toString(transform),
   }
 
+  const taskId = useMemo( () => {
+    return tasks.map((task) => task.id)
+  },[tasks])
+
   if(isDragging) {
     return (
       <div ref={setNodeRef} style={style} className="bg-columnBackGroundColor w-[350px] h-[500px] max-h-[500px] rounded-md flex flex-col opacity-40 border-2 border-red-500">
@@ -47,9 +51,6 @@ const ColumnContainer = (props: Props) => {
       <div onClick={() => { setEditMode(true) }} {...attributes} {...listeners} className="bg-mainBackGroundColor text-md h-[60px] cursor-grap rounded-md rounded-b-none p-3 font-bold border-columnBackGroundColor 
             border-4 flex items-center justify-between">  
         <div className="flex gap-2">
-          <div className="flex justify-center items-center bg-columnBackGroundColor text-sm px-2 rounded-full ">
-            <span className="mt-1">0</span>
-          </div>
           {!editMode && column.title}
           {editMode && (
             <input 
@@ -70,7 +71,9 @@ const ColumnContainer = (props: Props) => {
       </div>
       <div className="flex flex-grow flex-col gap-4 p-2 overflow-hidden overflow-y-auto">
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} deleteTask={deleteTask} updateTask={updateTask}/>
+          <SortableContext key={task.id} items={taskId}>
+            <TaskCard key={task.id} task={task} deleteTask={deleteTask} updateTask={updateTask}/>
+          </SortableContext>
         ))}
       </div>
       <button className="flex gap-2 items-center border-columnBackGroundColor border-2 rounded-md p-4
